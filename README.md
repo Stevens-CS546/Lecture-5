@@ -1,2 +1,2 @@
-# Boilerplate
-A boilerplate to use in CS-546 Assignments
+# Lecture 5
+Lecture 5 code and comments
