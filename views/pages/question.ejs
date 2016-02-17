@@ -8,14 +8,36 @@
 <body>
     <div class="container">
         <% include ../partials/header %>
-        <main>
-            <h2><%= question.title %></h2>
-            <hr/>
-            <p><%= question.text %></p>
-        </main>
+            <main>
+                <h2><%= question.title %></h2>
+                <hr/>
+                <p>
+                    <%= question.text %>
+                </p>
+                
+                <% if (question.answer) { %>
+                    <section class="answer">
+                        <h3>Answer</h3>
+                        <p>
+                            <%= question.answer %>
+                        </p>
+                    </section>
+                <% } else { %>
+                    <section class="answer-form">
+                        <h3>Submit Answer</h3>
+                        
+                    </section>
+            <% } %>                   	
+                        
+                <section class="question-form">
+                <%  
+                    locals.questionToUpdate = question;
+                 %>
+                <%- include ../partials/question-form %>
+                </section>
     </div>
-
-    <% include ../partials/scripts %>
+                        
+    <% 	include ../partials/scripts %>
 </body>
 
 </html>

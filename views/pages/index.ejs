@@ -17,6 +17,10 @@
                     <li><a href="/questions/<%=question.id%>"><%= question.title%></a></li>                
                 <% }) %>
             </ul>
+            
+            <section>
+                <% include ../partials/question-form %>
+            </section>
         </main>
     </div>
 

@@ -13,6 +13,16 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+// check for hidden input with the tag _method
+app.use(function (req, res, next) {
+    if (req.body && req.body._method) {
+        req.method = req.body._method;
+        delete req.body._method;
+    }
+
+    next();
+});
+
 // This middleware will activate for every request we make to 
 // any path starting with /assets;
 // it will check the 'static' folder for matching files 
@@ -28,12 +38,38 @@ app.get("/questions/:id", function (request, response) {
     try {
         var question = questionAndAnswers.getQuestion(request.params.id);
         // we caught an exception! Let's show an error page!
-        response.status(500).render('pages/question', { question: question });
+        response.render('pages/question', { question: question, pageTitle: question.title });
     } catch (message) {
         // we caught an exception! Let's show an error page!
         response.status(500).render('pages/error', { errorType: "Issue loading question!", errorMessage: message });
     }
 });
+
+// Make a new question
+app.post("/questions", function (request, response) {
+    try {
+        var question = questionAndAnswers.addQuestion(request.body.title, request.body.text);
+        // we caught an exception! Let's show an error page!
+        response.render('pages/question', { question: question, pageTitle: question.title });
+    } catch (message) {
+        // we caught an exception! Let's show an error page!
+        response.status(500).render('pages/error', { errorType: "Issue creating question!", errorMessage: message });
+    }
+});
+
+// Update one
+app.put("/questions/:id", function (request, response) {
+    console.log(request.body);
+
+    try {
+        var question = questionAndAnswers.updateQuestion(request.params.id, request.body.title, request.body.text);
+        // we caught an exception! Let's show an error page!
+        response.render('pages/question', { question: question, pageTitle: question.title });
+    } catch (message) {
+        // we caught an exception! Let's show an error page!
+        response.status(500).render('pages/error', { errorType: "Issue loading question!", errorMessage: message });
+    }
+})
 
 app.get("/questions", function (request, response) {
     // We have to pass a second parameter to specify the root directory
@@ -57,7 +93,7 @@ app.get("/questions", function (request, response) {
     // render will search your 'views' directory and follow the path you give it to get a template
     // it will compile the template with the model you provide in the second parameter and
     // send it to the user
-    response.render('pages/index', { questions: questionsToShow, type: displayType });
+    response.render('pages/index', { questions: questionsToShow, type: displayType, pageTitle: "Home" });
 });
 
 // We can now navigate to localhost:3000
