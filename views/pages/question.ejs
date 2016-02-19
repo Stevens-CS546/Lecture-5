@@ -14,7 +14,7 @@
                 <p>
                     <%= question.text %>
                 </p>
-                
+
                 <% if (question.answer) { %>
                     <section class="answer">
                         <h3>Answer</h3>
@@ -22,21 +22,33 @@
                             <%= question.answer %>
                         </p>
                     </section>
-                <% } else { %>
-                    <section class="answer-form">
-                        <h3>Submit Answer</h3>
-                        
-                    </section>
-            <% } %>                   	
-                        
-                <section class="question-form">
-                <%  
+                    <% } else { %>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <section class="answer-form">
+                                    <h3>Submit Answer</h3>
+                                    <form class="form-horizontal" method="POST" action="/questions/<%=question.id%>/answer">
+                                        <div class="form-group">
+                                            <label for="answer" class="control-label col-sm-3">Answer</label>
+                                            <div class="col-sm-9">
+                                                <textarea placeholder="Your answer" id="answer" class="form-control" name="answer"></textarea>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-default" type="submit">Answer Question</button>
+                                    </form>
+                                </section>
+                            </div>
+                        </div>
+                        <% } %>
+
+                            <section class="question-form">
+                                <%  
                     locals.questionToUpdate = question;
                  %>
-                <%- include ../partials/question-form %>
-                </section>
+                                    <%- include ../partials/question-form %>
+                            </section>
     </div>
-                        
+
     <% 	include ../partials/scripts %>
 </body>
 

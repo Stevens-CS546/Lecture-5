@@ -13,25 +13,52 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+// This middleware will activate for every request we make to 
+// any path starting with /assets;
+// it will check the 'static' folder for matching files 
+app.use('/assets', express.static('static'));
+
 // check for hidden input with the tag _method
+// browser sometimes cannot submit a PUT or DELETE request,
+// so we can use middleware to change it before it hits our routes!
+// I have programatically injected some code that will add a hidden input called _method
 app.use(function (req, res, next) {
     if (req.body && req.body._method) {
         req.method = req.body._method;
         delete req.body._method;
     }
 
+    // let the next middleware run:
     next();
 });
-
-// This middleware will activate for every request we make to 
-// any path starting with /assets;
-// it will check the 'static' folder for matching files 
-app.use('/assets', express.static('static'));
 
 // Setup your routes here!
 
 app.get("/", function (request, response) {
+    // This will redirect to a different route; the user will end up at /questions automatically
     response.redirect("/questions");
+});
+
+app.get("/all_the_forms", function (request, response) {
+    response.render('pages/forms', { pageTitle: "Testing all the inputs" });
+});
+
+app.post("/all_the_forms", function (request, response) {
+    var tableData = [];
+    
+    // our request.body will get populated as an object
+    for (var key in request.body) {
+        var data = request.body[key];
+        var entry = {
+            inputName: key,
+            inputValue: JSON.stringify(data),
+            inputType: typeof data
+        };
+
+        tableData.push(entry);
+    }
+
+    response.render('pages/forms', { pageTitle: "Testing all the inputs", tableData: tableData });
 });
 
 app.get("/questions/:id", function (request, response) {
@@ -49,7 +76,6 @@ app.get("/questions/:id", function (request, response) {
 app.post("/questions", function (request, response) {
     try {
         var question = questionAndAnswers.addQuestion(request.body.title, request.body.text);
-        // we caught an exception! Let's show an error page!
         response.render('pages/question', { question: question, pageTitle: question.title });
     } catch (message) {
         // we caught an exception! Let's show an error page!
@@ -57,7 +83,18 @@ app.post("/questions", function (request, response) {
     }
 });
 
-// Update one
+// let's add an answer!
+app.post("/questions/:id/answer", function (request, response) {
+    try {
+        var question = questionAndAnswers.answerQuestion(request.params.id, request.body.answer);
+        response.render('pages/question', { question: question, pageTitle: question.title });
+    } catch (message) {
+        // we caught an exception! Let's show an error page!
+        response.status(500).render('pages/error', { errorType: "Cannot answer question!", errorMessage: message });
+    }
+});
+
+// Update a question
 app.put("/questions/:id", function (request, response) {
     console.log(request.body);
 
@@ -67,7 +104,7 @@ app.put("/questions/:id", function (request, response) {
         response.render('pages/question', { question: question, pageTitle: question.title });
     } catch (message) {
         // we caught an exception! Let's show an error page!
-        response.status(500).render('pages/error', { errorType: "Issue loading question!", errorMessage: message });
+        response.status(500).render('pages/error', { errorType: "Issue updating question!", errorMessage: message });
     }
 })
 
