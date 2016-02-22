@@ -24,6 +24,7 @@ app.use('/assets', express.static('static'));
 // I have programatically injected some code that will add a hidden input called _method
 app.use(function (req, res, next) {
     if (req.body && req.body._method) {
+        console.log(req.body);
         req.method = req.body._method;
         delete req.body._method;
     }
@@ -74,6 +75,8 @@ app.get("/questions/:id", function (request, response) {
 
 // Make a new question
 app.post("/questions", function (request, response) {
+    console.log("POSTING REQUEST WITH BODY OF:");
+console.log(request.body);
     try {
         var question = questionAndAnswers.addQuestion(request.body.title, request.body.text);
         response.render('pages/question', { question: question, pageTitle: question.title });
@@ -96,6 +99,7 @@ app.post("/questions/:id/answer", function (request, response) {
 
 // Update a question
 app.put("/questions/:id", function (request, response) {
+    console.log("PUTTING REQUEST WITH BODY OF:");
     console.log(request.body);
 
     try {
